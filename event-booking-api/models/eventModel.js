@@ -16,6 +16,11 @@ const Event = sequelize.define("Event", {
   description: {
     type: DataTypes.TEXT
   },
+  
+  location: {
+  type: DataTypes.STRING,
+  allowNull: true
+},
 
   latitude: {
     type: DataTypes.FLOAT

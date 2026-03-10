@@ -1,6 +1,6 @@
 const Booking = require("../models/bookingModel");
 const Event = require("../models/eventModel");
-
+const { errorHandler } = require("../utils/errorHandler");
 
 // JOIN EVENT
 exports.joinEvent = async (req, res) => {
@@ -36,9 +36,9 @@ exports.joinEvent = async (req, res) => {
 
   } catch (error) {
 
-    res.status(500).json({ error: error.message });
+  errorHandler(res, error);
 
-  }
+}
 
 };
 

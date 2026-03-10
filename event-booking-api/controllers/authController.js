@@ -2,59 +2,97 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const sendEmail = require("../utils/mailer");
+const { getCoordinates } = require("../utils/geocode");
+const {registerSchema, loginSchema } = require("./../validators/authvalidator");
+const { errorHandler } = require("../utils/errorHandler");
 
 // REGISTER
 exports.register = async (req, res) => {
+
   try {
-    const { name, email, password, role, latitude, longitude } = req.body;
+
+    const { name, email, password, role, location } = req.body;
 
     const existingUser = await User.findOne({ where: { email } });
 
     if (existingUser) {
-      return res.status(400).json({ message: "Email already exists" });
+      return res.status(400).json({
+        success: false,
+        message: "Email already exists"
+      });
     }
+
+    // Convert location to latitude & longitude
+    const coords = await getCoordinates(location);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await User.create({
+    const user = await User.create({
       name,
       email,
       password: hashedPassword,
       role: role || "user",
-      latitude,
-      longitude
+      location: location,
+      latitude: coords.latitude,
+      longitude: coords.longitude
     });
 
-    res.status(201).json({ message: "User registered successfully" });
+    res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      data: user
+    });
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
   }
+
 };
 
 
 // LOGIN
 exports.login = async (req, res) => {
   try {
+
+    const { error } = loginSchema.validate(req.body);
+
+    if (error) {
+      return res.status(400).json({
+        message: error.details[0].message
+      });
+    }
+
     const { email, password } = req.body;
 
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({
+        message: "Invalid email or password"
+      });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const match = await bcrypt.compare(password, user.password);
 
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
+    if (!match) {
+      return res.status(400).json({
+        message: "Invalid email or password"
+      });
     }
 
     const token = jwt.sign(
-      { id: user.id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
+  {
+    id: user.id,
+    role: user.role
+  },
+  process.env.JWT_SECRET,
+  { expiresIn: "1h" }
+);
 
     res.json({
       message: "Login successful",
@@ -62,7 +100,11 @@ exports.login = async (req, res) => {
     });
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+
+    res.status(500).json({
+      error: error.message
+    });
+
   }
 };
 
