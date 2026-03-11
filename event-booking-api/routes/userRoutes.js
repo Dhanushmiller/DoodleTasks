@@ -7,9 +7,9 @@ const { getMyEvents, updateProfile } = require("../controllers/userController");
 const { bulkRegisterUsers } = require("../controllers/userController");
 const { getUsersWithEvents } = require("../controllers/userController");
 
-router.get("/my-events", authMiddleware, getMyEvents);
+router.get("/my-events", authMiddleware.authenticate, getMyEvents);
 router.post("/bulk-register", bulkRegisterUsers);
 router.get("/admin/users-events", authMiddleware, authorizeAdmin,getUsersWithEvents);
-router.put("/update-profile", authMiddleware, updateProfile);
+router.put("/update-profile", authMiddleware.authenticate, updateProfile);
 
 module.exports = router;

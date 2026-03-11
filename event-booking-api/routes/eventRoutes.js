@@ -9,8 +9,8 @@ const { authorizeAdmin } = require("../middleware/roleMiddleware");
 
 
 // GET EVENTS (pagination)
-router.get("/", getEvents);
-router.get("/nearby", getNearbyEvents);
+router.get("/", authenticate, getEvents);
+router.get("/nearby", authenticate, getNearbyEvents);
 
 router.get("/search", searchEventsByLocation);
 
