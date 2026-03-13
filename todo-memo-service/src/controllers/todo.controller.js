@@ -102,6 +102,83 @@ class TodoController {
     });
   }
 
+  static getTrashTodos(req,res){
+
+ const userId = req.user.id;
+
+ const query =
+ "SELECT * FROM todos WHERE user_id=? AND is_deleted=true";
+
+ db.query(query,[userId],(err,results)=>{
+
+   if(err){
+     return res.status(500).json({
+       success:false,
+       message:"Database error"
+     });
+   }
+
+   res.status(200).json({
+     success:true,
+     data:results
+   });
+
+ });
+
+}
+
+static restoreTodo(req,res){
+
+ const todoId = req.params.id;
+ const userId = req.user.id;
+
+ const query =
+ "UPDATE todos SET is_deleted=false WHERE id=? AND user_id=?";
+
+ db.query(query,[todoId,userId],(err,result)=>{
+
+   if(err){
+     return res.status(500).json({
+       success:false,
+       message:"Database error"
+     });
+   }
+
+   res.status(200).json({
+     success:true,
+     message:"Todo restored successfully"
+   });
+
+ });
+
+}
+
+static deletePermanent(req,res){
+
+ const todoId = req.params.id;
+ const userId = req.user.id;
+
+ const query =
+ "DELETE FROM todos WHERE id=? AND user_id=?";
+
+ db.query(query,[todoId,userId],(err,result)=>{
+
+   if(err){
+     return res.status(500).json({
+       success:false,
+       message:"Database error"
+     });
+   }
+
+   res.status(200).json({
+     success:true,
+     message:"Todo permanently deleted"
+   });
+
+ });
+
+}
+
 }
 
 module.exports = TodoController;
