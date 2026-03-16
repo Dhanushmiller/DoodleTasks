@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+require("./jobs/reminder.job");
 
 const db = require("./config/db");
 const userRoutes = require("./routes/user.routes");

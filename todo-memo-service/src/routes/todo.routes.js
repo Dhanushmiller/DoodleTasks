@@ -47,3 +47,9 @@ router.delete(
   authenticateToken,
   TodoController.deletePermanent
 );
+
+router.get(
+ "/expired",
+ authenticateToken,
+ TodoController.getExpiredTodos
+);
