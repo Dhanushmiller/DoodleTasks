@@ -1,211 +1,263 @@
-const db = require("../config/db");
+const Todo = require("../models/todo.model");
+const { Op } = require("sequelize");
 
 class TodoController {
 
-  // CREATE TODO
-  static createTodo(req, res) {
+  static async createTodo(req, res) {
 
-  const { task_name, expiry } = req.body;
-  const userId = req.user.id;
+  try {
 
-  const query =
-  "INSERT INTO todos (user_id, task_name, expiry) VALUES (?, ?, ?)";
+    const { task_name, expiry } = req.body;
+    const userId = req.user.id;
 
-  db.query(query, [userId, task_name, expiry], (err, result) => {
+    const expiryTime = new Date(expiry);
+    const now = new Date();
 
-    if (err) {
-      return res.status(500).json({
+    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+
+    // Check expiry validation
+    if (expiryTime < oneHourLater) {
+      return res.status(400).json({
         success: false,
-        message: "Database error"
+        message: "Expiry time must be at least 1 hour from now"
       });
     }
+
+    const todo = await Todo.create({
+      user_id: userId,
+      task_name,
+      expiry
+    });
 
     res.status(201).json({
       success: true,
       message: "Todo created successfully",
-      todoId: result.insertId
+      data: todo
     });
 
-  });
-}
+  } catch (error) {
 
-  // GET ALL TODOS OF USER
-  static getTodos(req, res) {
+    console.log(error);
 
-    const userId = req.user.id;
-
-    const query =
-      "SELECT * FROM todos WHERE user_id=? AND is_deleted=false ORDER BY created_at DESC";
-
-    db.query(query, [userId], (err, results) => {
-
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-
-      res.json(results);
-
+    res.status(500).json({
+      success: false,
+      message: "Database error"
     });
+
   }
-
-  // UPDATE TODO
-  static updateTodo(req, res) {
-
-    const todoId = req.params.id;
-    const userId = req.user.id;
-
-    const { task_name, completion_status, expiry } = req.body;
-
-    const query =
-      "UPDATE todos SET task_name=?, completion_status=?, expiry=? WHERE id=? AND user_id=?";
-
-    db.query(
-      query,
-      [task_name, completion_status, expiry, todoId, userId],
-      (err, result) => {
-
-        if (err) {
-          return res.status(500).json({ error: err.message });
-        }
-
-        if (result.affectedRows === 0) {
-          return res.status(404).json({ message: "Todo not found" });
-        }
-
-        res.json({ message: "Todo updated successfully" });
-
-      }
-    );
-  }
-  
-  static getExpiredTodos(req,res){
-
- const userId = req.user.id;
-
- const query =
- "SELECT * FROM todos WHERE user_id=? AND expiry < NOW() AND is_deleted=false";
-
- db.query(query,[userId],(err,results)=>{
-
-   if(err){
-     return res.status(500).json({
-       success:false,
-       message:"Database error"
-     });
-   }
-
-   res.status(200).json({
-     success:true,
-     data:results
-   });
-
- });
 
 }
 
-  // DELETE TODO (SOFT DELETE)
-  static deleteTodo(req, res) {
+  static async getTodos(req, res) {
 
-    const todoId = req.params.id;
-    const userId = req.user.id;
+    try {
 
-    const query =
-      "UPDATE todos SET is_deleted=true WHERE id=? AND user_id=?";
+      const userId = req.user.id;
 
-    db.query(query, [todoId, userId], (err, result) => {
+      const todos = await Todo.findAll({
+        where: {
+          user_id: userId,
+          is_deleted: false
+        },
+        order: [["created_at", "DESC"]]
+      });
 
-      if (err) {
-        return res.status(500).json({ error: err.message });
+      res.json(todos);
+
+    } catch (error) {
+
+      res.status(500).json({ message: "Database error" });
+
+    }
+
+  }
+
+  static async updateTodo(req, res) {
+
+    try {
+
+      const todoId = req.params.id;
+      const userId = req.user.id;
+
+      const { task_name, completion_status, expiry } = req.body;
+
+      const updated = await Todo.update(
+        { task_name, completion_status, expiry },
+        {
+          where: {
+            id: todoId,
+            user_id: userId
+          }
+        }
+      );
+
+      if (!updated[0]) {
+        return res.status(404).json({ message: "Todo not found" });
       }
 
-      if (result.affectedRows === 0) {
+      res.json({ message: "Todo updated successfully" });
+
+    } catch (error) {
+
+      res.status(500).json({ message: "Database error" });
+
+    }
+
+  }
+
+  static async getExpiredTodos(req, res) {
+
+    try {
+
+      const userId = req.user.id;
+
+      const todos = await Todo.findAll({
+        where: {
+          user_id: userId,
+          expiry: { [Op.lt]: new Date() },
+          is_deleted: false
+        }
+      });
+
+      res.json({
+        success: true,
+        data: todos
+      });
+
+    } catch (error) {
+
+      res.status(500).json({
+        success: false,
+        message: "Database error"
+      });
+
+    }
+
+  }
+
+  static async deleteTodo(req, res) {
+
+    try {
+
+      const todoId = req.params.id;
+      const userId = req.user.id;
+
+      const updated = await Todo.update(
+        { is_deleted: true },
+        {
+          where: {
+            id: todoId,
+            user_id: userId
+          }
+        }
+      );
+
+      if (!updated[0]) {
         return res.status(404).json({ message: "Todo not found" });
       }
 
       res.json({ message: "Todo moved to trash" });
 
-    });
+    } catch (error) {
+
+      res.status(500).json({ message: "Database error" });
+
+    }
+
   }
 
-  static getTrashTodos(req,res){
+  static async getTrashTodos(req, res) {
 
- const userId = req.user.id;
+    try {
 
- const query =
- "SELECT * FROM todos WHERE user_id=? AND is_deleted=true";
+      const userId = req.user.id;
 
- db.query(query,[userId],(err,results)=>{
+      const todos = await Todo.findAll({
+        where: {
+          user_id: userId,
+          is_deleted: true
+        }
+      });
 
-   if(err){
-     return res.status(500).json({
-       success:false,
-       message:"Database error"
-     });
-   }
+      res.json({
+        success: true,
+        data: todos
+      });
 
-   res.status(200).json({
-     success:true,
-     data:results
-   });
+    } catch (error) {
 
- });
+      res.status(500).json({
+        success: false,
+        message: "Database error"
+      });
+
+    }
+
+  }
+
+  static async restoreTodo(req, res) {
+
+    try {
+
+      const todoId = req.params.id;
+      const userId = req.user.id;
+
+      await Todo.update(
+        { is_deleted: false },
+        {
+          where: {
+            id: todoId,
+            user_id: userId
+          }
+        }
+      );
+
+      res.json({
+        success: true,
+        message: "Todo restored successfully"
+      });
+
+    } catch (error) {
+
+      res.status(500).json({
+        success: false,
+        message: "Database error"
+      });
+
+    }
+
+  }
+
+  static async deletePermanent(req, res) {
+
+    try {
+
+      const todoId = req.params.id;
+      const userId = req.user.id;
+
+      await Todo.destroy({
+        where: {
+          id: todoId,
+          user_id: userId
+        }
+      });
+
+      res.json({
+        success: true,
+        message: "Todo permanently deleted"
+      });
+
+    } catch (error) {
+
+      res.status(500).json({
+        success: false,
+        message: "Database error"
+      });
+
+    }
+
+  }
 
 }
-
-static restoreTodo(req,res){
-
- const todoId = req.params.id;
- const userId = req.user.id;
-
- const query =
- "UPDATE todos SET is_deleted=false WHERE id=? AND user_id=?";
-
- db.query(query,[todoId,userId],(err,result)=>{
-
-   if(err){
-     return res.status(500).json({
-       success:false,
-       message:"Database error"
-     });
-   }
-
-   res.status(200).json({
-     success:true,
-     message:"Todo restored successfully"
-   });
-
- });
-
-}
-
-static deletePermanent(req,res){
-
- const todoId = req.params.id;
- const userId = req.user.id;
-
- const query =
- "DELETE FROM todos WHERE id=? AND user_id=?";
-
- db.query(query,[todoId,userId],(err,result)=>{
-
-   if(err){
-     return res.status(500).json({
-       success:false,
-       message:"Database error"
-     });
-   }
-
-   res.status(200).json({
-     success:true,
-     message:"Todo permanently deleted"
-   });
-
- });
-
-}
-
-}
-
-
 
 module.exports = TodoController;

@@ -2,7 +2,7 @@ const cron = require("node-cron");
 const db = require("../config/db");
 const sendEmail = require("../utils/email");
 
-cron.schedule("* * * * *", () => {
+cron.schedule("0 * * * *", () => {
 
  console.log("Checking for upcoming tasks...");
 

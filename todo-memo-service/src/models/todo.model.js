@@ -34,7 +34,8 @@ const Todo = sequelize.define("Todo", {
 
 }, {
   tableName: "todos",
-  timestamps: true
+  timestamps: true,
+  underscored: true
 });
 
 module.exports = Todo;
