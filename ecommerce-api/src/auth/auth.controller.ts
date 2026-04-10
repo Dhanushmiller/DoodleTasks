@@ -2,7 +2,7 @@ import { Controller, Post, Body, Get, UseGuards, Req, UsePipes } from '@nestjs/c
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { JoiValidationPipe } from '../common/pipes/joi-validation.pipe';
-import { RegisterSchema, LoginSchema } from './schemas/auth.schema';
+import { RegisterSchema, LoginSchema } from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {

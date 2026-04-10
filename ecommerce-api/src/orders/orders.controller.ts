@@ -3,7 +3,7 @@ import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Response as ExpressResponse } from 'express';
 import { JoiValidationPipe } from '../common/pipes/joi-validation.pipe';
-import { CreateOrderSchema } from './schemas/order.joi';
+import { CreateOrderSchema } from './dto/order.dto';
 
 @Controller('orders')
 export class OrdersController {

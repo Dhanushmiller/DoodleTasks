@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, UsePipes } 
 import { ProductsService } from './products.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { JoiValidationPipe } from '../common/pipes/joi-validation.pipe';
-import { CreateProductSchema, UpdateProductSchema } from './schemas/product.joi';
+import { CreateProductSchema, UpdateProductSchema } from './dto/product.dto';
 
 @Controller('products')
 export class ProductsController {
