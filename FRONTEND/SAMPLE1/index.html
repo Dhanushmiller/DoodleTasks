@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creator Contact Details</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="card toggle-bar">
+            <div class="toggle-item">
+                <span class="label">Public Figure</span>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="toggle-item">
+                <span class="label">Animeta Verified</span>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="toggle-item">
+                <span class="label">Ani App Onboarded</span>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="toggle-item">
+                <span class="label">Delist Creator</span>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="card managed-by">
+            <span class="label">Managed By</span>
+            <div class="radio-group">
+                <label class="radio-container">
+                    <input type="radio" name="managedBy" value="self" checked>
+                    <span class="checkmark"></span>
+                    Self
+                </label>
+                <label class="radio-container">
+                    <input type="radio" name="managedBy" value="agency">
+                    <span class="checkmark"></span>
+                    Agency
+                </label>
+            </div>
+        </div>
+
+        <div class="card form-container">
+            <div class="tabs">
+                <div class="tab active">Contact Details</div>
+            </div>
+
+            <form id="contactForm" >
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>Creator Full Name <span class="required">*</span></label>
+                        <input type="text" id="creatorName" placeholder="name" value="name">
+                    </div>
+                    <div class="form-group">
+                        <label>Instagram Handle</label>
+                        <input type="text" id="instagramHandle" placeholder="narendra" value="modi">
+                    </div>
+                    <div class="form-group">
+                        <label>Creator Type</label>
+                        <select>
+                            <option value="male" selected>Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Direct Mobile Number</label>
+                        <div class="phone-input">
+                            <div class="country-code">
+                                <img src="https://flagcdn.com/w20/in.png" alt="India">
+                                <span>+91</span>
+                            </div>
+                            <input type="tel" placeholder="Enter mobile number">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Creator Email</label>
+                        <input type="email" placeholder="Enter">
+                    </div>
+                    <div class="form-group">
+                        <label>Contact POC Name (If Other Than Creator)</label>
+                        <input type="text" placeholder="Enter">
+                    </div>
+
+                    <div class="form-group">
+                        <label>POC Mobile Number</label>
+                        <div class="phone-input">
+                            <div class="country-code">
+                                <img src="https://flagcdn.com/w20/in.png" alt="India">
+                                <span>+91</span>
+                            </div>
+                            <input type="tel" placeholder="Enter mobile number">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>POC Email ID</label>
+                        <input type="email" placeholder="Enter">
+                    </div>
+                    <div class="form-group">
+                        <label>Relationship</label>
+                        <input type="text" placeholder="Enter">
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>City</label>
+                        <select id="citySelect">
+                            <option value="">Select City</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>State</label>
+                        <select id="stateSelect">
+                            <option value="">Select State</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Country</label>
+                        <select id="countrySelect">
+                            <option value="">Select Country</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-footer">
+                    <button type="button" id="saveBtn" class="btn-save">Save As Draft</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
