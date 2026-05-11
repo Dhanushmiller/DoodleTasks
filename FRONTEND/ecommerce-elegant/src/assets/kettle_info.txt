@@ -1,0 +1,3 @@
+// Image data would be here if I could save binary, but I'll use the URL from the prompt if available or a similar one.
+// Since I can't save binary directly from the user's upload in this tool, 
+// I'll use a high-quality Unsplash image that matches this exact "Black and Rose Gold Kettle" look.
